@@ -7,9 +7,7 @@
 #include "FirstInnerNode.h"
 #include "RemainingInnerNodes.h"
 #include "TrainingDataStruct.h"
-
-// Command line to compile in Linux:
-// g++ main.cpp -pedantic -Wall -Werror -O3
+#include "PrintFunctions.h"
 
 // Activation function and its derivative
 double sigmoid(double x) { return 1 / (1 + exp(-x)); }
@@ -31,7 +29,8 @@ void InitialiseLayer(T &Layer)
 }
 
 template <typename T, typename U>
-void EstimateDelta(const int n_DownStreamLayerNodes, const T &DownstreamLayer, int n_LayerToCalculateNodes, U &LayerToCalculate)
+void EstimateDelta(const int n_DownStreamLayerNodes, const T &DownstreamLayer,
+                   int n_LayerToCalculateNodes, U &LayerToCalculate)
 {
   for (int i = 0; i < n_LayerToCalculateNodes; i++)
   {
@@ -45,7 +44,8 @@ void EstimateDelta(const int n_DownStreamLayerNodes, const T &DownstreamLayer, i
 }
 
 template <typename T, typename U>
-void ChangeBiasAndWeights(const int n_UpstreamLayerNodes, const U &UpstreamLayer, int n_LayerToChangeNodes, T &LayerToChange, double lr)
+void ChangeBiasAndWeights(const int n_UpstreamLayerNodes, const U &UpstreamLayer,
+                          int n_LayerToChangeNodes, T &LayerToChange, double lr)
 {
   for (int i = 0; i < n_LayerToChangeNodes; i++)
   {
@@ -58,7 +58,8 @@ void ChangeBiasAndWeights(const int n_UpstreamLayerNodes, const U &UpstreamLayer
 }
 
 template <typename T, typename U>
-void ForwardPassOneLayer(const int n_PreviousLayerNodes, const T &PreviousLayer, U &LayerToCalculate)
+void ForwardPassOneLayer(const int n_PreviousLayerNodes, const T &PreviousLayer,
+                         U &LayerToCalculate)
 {
   for (auto &&neuron : LayerToCalculate)
   {
@@ -88,7 +89,8 @@ void ForwardPassAllLayers(
     neuron.Value = sigmoid(activation);
   }
 
-  // Propagate through all of the intermediate hidden layers and finally into the output layer
+  // Propagate through all of the intermediate hidden layers and finally into
+  // the output layer
   if (numIntermediateLayers < 1)
   {
     std::cerr << "Insufficient intermediate layers - aborting\n";
@@ -111,24 +113,6 @@ void ForwardPassAllLayers(
 }
 
 template <typename T>
-void PrintNeuronValues(T &layer)
-{
-  std::cout << "Neuron values = [";
-  bool first = true;
-  for (auto &&neuron : layer)
-  {
-    if (first == false)
-    {
-      std::cout << ", ";
-    }
-    std::cout << std::fixed << std::setprecision(2) << neuron.Value;
-    first = false;
-  }
-  std::cout << "]";
-  std::cout << std::defaultfloat;
-}
-
-template <typename T>
 void PrintNeuronWeightsAndBias(T &neuron)
 {
   std::cout << "W ";
@@ -138,88 +122,6 @@ void PrintNeuronWeightsAndBias(T &neuron)
   }
   std::cout << "\n";
   std::cout << "B " << neuron.Bias << "\n";
-}
-
-void PrintTrainingDataStructInput(const TrainingDataStruct &t)
-{
-  std::cout << "Input = [";
-  bool first = true;
-  for (auto &&i : t.inputs)
-  {
-    if (first == false)
-    {
-      std::cout << ", ";
-    }
-    std::cout << std::setw(3) << std::fixed << std::setprecision(2) << i;
-    first = false;
-  }
-  std::cout << "]";
-  std::cout << std::defaultfloat;
-}
-
-void PrintTrainingDataStructOutput(const TrainingDataStruct &t)
-{
-  std::cout << "Output = [";
-  bool first = true;
-  for (auto &&i : t.outputs)
-  {
-    if (first == false)
-    {
-      std::cout << ", ";
-    }
-    std::cout << std::setw(3) << std::fixed << std::setprecision(2) << i;
-    first = false;
-  }
-  std::cout << "]";
-  std::cout << std::defaultfloat;
-}
-
-void PrintInputOutputAndError(int epochs, const TrainingDataStruct &t, const std::array<RemainingInnerNodes, numOutputs> &OutputLayer)
-{
-  std::cout << epochs << " ";
-  PrintTrainingDataStructInput(t);
-  std::cout << " ";
-  PrintTrainingDataStructOutput(t);
-  std::cout << " ";
-  PrintNeuronValues(OutputLayer);
-
-  std::cout << " ";
-  std::cout << "Error = [";
-  bool first = true;
-  for (int i = 0; i < numOutputs; i++)
-  {
-    if (first == false)
-    {
-      std::cout << ", ";
-    }
-    std::cout << std::setw(5) << std::fixed << std::setprecision(2) << t.outputs[i] - OutputLayer[i].Value;
-    first = false;
-  }
-  std::cout << "]\n";
-  std::cout << std::defaultfloat;
-}
-
-void PrintInputAndOutputAndError(const TrainingDataStruct &t, const std::array<RemainingInnerNodes, numOutputs> &OutputLayer)
-{
-  PrintTrainingDataStructInput(t);
-  std::cout << " ";
-  PrintTrainingDataStructOutput(t);
-  std::cout << " ";
-  PrintNeuronValues(OutputLayer);
-
-  std::cout << " ";
-  std::cout << "Error = [";
-  bool first = true;
-  for (int i = 0; i < numOutputs; i++)
-  {
-    if (first == false)
-    {
-      std::cout << ", ";
-    }
-    std::cout << t.outputs[i] - OutputLayer[i].Value;
-    first = false;
-  }
-  std::cout << "]\n";
 }
 
 int main(void)
@@ -239,17 +141,18 @@ int main(void)
   // - numInputs of inputs
   // - numOutputs of outputs
 
-  // The inputs can be an integer or real number
-  // The output is a real number between 0 and 1
-  // Think of the output (or outputs) as being a representation of the output you're
-  // wanting.
+  // The inputs can be an integer or real number. The output is a real number
+  // between 0 and 1. Think of the output (or outputs) as being a representation
+  // of the actual output you're wanting.
 
-  // e.g. for a simple XOR function that only produces either 0 or 1, the ANN
-  // can just be a single output.
+  // e.g. for a simple XOR function that only produces either 0 or 1, the output
+  // can just be a single output between 0-1. i.e. {0} represents 0 and {1}
+  // represents 1.
 
-  // e.g. for a case where you're adding two numbers, you'll some type of encoding
-  // scheme. In the example given below, the first output neuron is for the range
-  // 0-1, the second is 1-2, the third is 2-3 and finally the fourth is 3-4.
+  // For a case where you're adding two numbers together, you'll need some type
+  // of encoding scheme. In the example given below, the output {0,0,0,0}
+  // represents the output of 0, {0,1,0,0} is 1, {0,0,1,0} is 2 and {0,0,0,1}
+  // is 3.
 
   TrainingData.push_back({{0, 0}, {0, 0, 0, 0}});
   TrainingData.push_back({{1, 0}, {0, 1, 0, 0}});
@@ -270,13 +173,13 @@ int main(void)
   }
   InitialiseLayer(OutputLayer);
 
-  // Let's train the neural network for a number of epochs
+  // Let's train the neural network for the number of epochs
   for (int epochs = 0; epochs < numberOfEpochs; epochs++)
   {
     for (auto &&t : TrainingData)
     {
-      // Let's take an input (in this case t is from the training data) and let's
-      // calculate the values for each node in each layer
+      // Let's take an input (in this case t is from the training data) and
+      // let's calculate the values for each node in each layer
       ForwardPassAllLayers(t, FirstHiddenLayer, IntermediateHiddenLayers, OutputLayer);
 
       // Print the results from forward pass
@@ -287,15 +190,15 @@ int main(void)
 
       // Back propagation
 
-      // First let's estimate the error (i.e. the difference between what we expect
-      // from the training data to what the ANN as predicted)
+      // First let's estimate the error (i.e. the difference between what we
+      // expect from the training data to what the ANN has predicted)
       for (int i = 0; i < numOutputs; i++)
       {
         double errorOutput = t.outputs[i] - OutputLayer[i].Value;
         OutputLayer[i].Delta = errorOutput * dSigmoid(OutputLayer[i].Value);
       }
 
-      // Let's now estimate the change needed for each of the preceeding layers
+      // Let's now estimate the change needed for each of the preceding layers
       if (numIntermediateLayers < 1)
       {
         std::cout << "Insufficient intermediate layers";
@@ -316,7 +219,7 @@ int main(void)
         EstimateDelta(numHiddenNodes, IntermediateHiddenLayers[0], numHiddenNodes, FirstHiddenLayer);
       }
 
-      // Let's now change the weights and the biases of the layers
+      // Let's now change the weights and the biases of all layers
       if (numIntermediateLayers < 1)
       {
         std::cerr << "Insufficient intermediate layers - aborting\n";
@@ -345,13 +248,13 @@ int main(void)
           FirstHiddenLayer[i].AssociatedWeights[j] += t.inputs[j] * FirstHiddenLayer[i].Delta * lr;
         }
       }
-      // At this point we've completed back propagation
-      // We'll now continue training by going back to the for loop
+      // At this point we've completed back propagation. We'll now continue
+      // training by going back to the for loop.
     }
   }
 
-  // We've not trained the ANN
-  // Let's do some tests
+  // We've now trained the ANN. Let's do some tests with data it's not seen
+  // before
 
   TrainingDataStruct test = {{1.5, 1.5}, {0, 0, 0, 0}};
   ForwardPassAllLayers(test, FirstHiddenLayer, IntermediateHiddenLayers, OutputLayer);
