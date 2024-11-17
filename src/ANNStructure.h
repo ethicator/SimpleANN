@@ -8,7 +8,7 @@
 
 const int numInputs = 2;
 const int numHiddenNodes = 2;
-const int numOutputs = 4;
 const int numIntermediateLayers = 1;
+const int numOutputs = 4;
 
 #endif
